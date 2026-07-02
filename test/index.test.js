@@ -9,9 +9,10 @@ describe('Xget Core Functionality', () => {
   });
 
   describe('Basic Request Handling', () => {
-    it('should return 404 for root path', async () => {
+    it('should return homepage for root path', async () => {
       const response = await SELF.fetch('https://example.com/');
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toContain('text/html');
     });
 
     it('should return 400 for invalid platform prefix', async () => {

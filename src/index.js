@@ -212,6 +212,444 @@ function addSecurityHeaders(headers) {
 }
 
 /**
+ * Creates the homepage HTML for project deadline management
+ * @returns {string}
+ */
+function getHomePageHtml() {
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project DDL - 项目提醒系统</title>
+  <style>
+    body { background-color: white; margin: 0; }
+    a { text-decoration: underline; text-decoration-color: currentColor; }
+    .home {
+      font-family: Roboto, Helvetica Neue, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 18px 16px 28px;
+      color: #2c3e50;
+    }
+    .title { font-size: 29px; color: #2c3e50; text-decoration: underline; text-decoration-color: currentColor; margin: 0; }
+    .subtitle { color: #666; display: inline-block; margin-top: 6px; font-size: 14px; }
+    .el-row { align-items: center; padding-top: 15px; font-size: 16px; }
+    .zonedivider { margin-top: 8px; border-bottom: 1px solid #ebeef5; }
+    .panel { margin-top: 12px; border: 1px solid #ebeef5; border-radius: 8px; padding: 12px; background: #fff; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .label { color: #666; font-size: 13px; margin-bottom: 4px; display: block; }
+    .custom-search-input, input, textarea, select {
+      width: 100%;
+      border: 1px solid lightgray;
+      border-radius: 4px;
+      font-size: 14px;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      color: #2c3e50;
+    }
+    textarea { min-height: 76px; resize: vertical; }
+    * input::placeholder, textarea::placeholder { color: lightgray; }
+    .thaw-button--primary {
+      background-color: #409eff;
+      color: #fff;
+      border: 1px solid #409eff;
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background-color: #fff;
+      color: #409eff;
+      border: 1px solid #b3d8ff;
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-danger {
+      background: #fff;
+      color: #f56c6c;
+      border: 1px solid #fbc4c4;
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .conf-title { font-size: 20px; font-weight: 400; color: black; }
+    .countdown-display { font-size: 20px; font-weight: 400; color: black; }
+    .countdown-value { display: inline-flex; align-items: center; }
+    .thaw-table-cell-layout { display: block; padding: 12px 0; border-bottom: 1px solid #ebeef5; }
+    .thaw-table-cell-layout:last-child { border-bottom: none; }
+    .meta { color: #666; font-size: 13px; }
+    .tag-container { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .plain-tag {
+      background-color: #fff;
+      border-color: #b3d8ff;
+      border-radius: 4px;
+      border-width: 1px;
+      border-style: solid;
+      height: 20px;
+      line-height: 18px;
+      padding: 0 5px;
+      font-size: 12px;
+      color: #409eff;
+    }
+    .editor {
+      margin-top: 10px;
+      border: 1px dashed #b3d8ff;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f8fbff;
+    }
+    .reminder-item {
+      border: 1px solid #ebeef5;
+      border-left: 4px solid #409eff;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+    .reminder-item.warn { border-left-color: #e6a23c; background: #fdf6ec; }
+    .reminder-item.danger { border-left-color: #f56c6c; background: #fef0f0; }
+    .footer {
+      height: 20px;
+      padding-top: 8px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; height: auto; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="home">
+    <h1 class="title">Project DDL</h1>
+    <span class="subtitle">沿用 CCF DDL 风格（配色/字号/卡片结构），并支持在前端直接编辑项目（模拟后端管理）。</span>
+
+    <div class="el-row zonedivider"></div>
+
+    <section class="panel">
+      <div class="grid-2">
+        <div>
+          <label class="label">项目名称</label>
+          <input id="name" class="custom-search-input" placeholder="例如：毕业设计" />
+        </div>
+        <div>
+          <label class="label">提醒天数（逗号分隔）</label>
+          <input id="reminderDays" value="14,7,3,1" class="custom-search-input" />
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:10px">
+        <div>
+          <label class="label">开始日期</label>
+          <input id="startDate" type="date" />
+        </div>
+        <div>
+          <label class="label">截止日期</label>
+          <input id="endDate" type="date" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label class="label">里程碑（每行：标题|YYYY-MM-DD）</label>
+        <textarea id="milestones" placeholder="开题|2026-01-10
+中期检查|2026-02-10"></textarea>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <button id="addBtn" class="thaw-button--primary">添加项目</button>
+        <button id="notifyBtn" class="btn-secondary">开启浏览器提醒</button>
+        <input type="file" id="importFile" accept="application/json" style="max-width:300px" />
+      </div>
+    </section>
+
+    <section class="grid-2" style="margin-top:12px; align-items:start">
+      <article class="panel">
+        <div class="conf-title">项目时间轴（前端）</div>
+        <div id="projectList"></div>
+      </article>
+      <article class="panel">
+        <div class="conf-title">项目编辑（后端管理台）</div>
+        <p class="meta">点击左侧项目的“编辑”，不跳转，在本页完成调整。</p>
+        <div class="grid-2">
+          <div>
+            <label class="label">选择项目</label>
+            <select id="editSelect"></select>
+          </div>
+          <div style="display:flex;align-items:end">
+            <button id="loadEdit" class="btn-secondary" style="width:100%">加载编辑器</button>
+          </div>
+        </div>
+        <div id="editArea" class="editor" style="display:none"></div>
+
+        <div style="margin-top:14px" class="conf-title">提醒列表</div>
+        <div id="reminderList" style="margin-top:8px"></div>
+      </article>
+    </section>
+
+    <div class="footer">
+      <span>Data source: Manual / JSON import</span>
+      <span>Inspired by CCF DDL style</span>
+    </div>
+  </div>
+
+  <script>
+    const key = 'project-ddl-items-v3';
+    let projects = JSON.parse(localStorage.getItem(key) || '[]');
+
+    const $ = id => document.getElementById(id);
+    const days = (a, b) => Math.ceil((new Date(b) - new Date(a)) / 86400000);
+    const clamp = (n, l, h) => Math.max(l, Math.min(h, n));
+
+    function parseMilestones(text) {
+      return text
+        .split('\n')
+        .map(v => v.trim())
+        .filter(Boolean)
+        .map(line => {
+          const [title, date] = line.split('|').map(v => v && v.trim());
+          return { title, date };
+        })
+        .filter(v => v.title && v.date);
+    }
+
+    function serializeMilestones(arr) {
+      return (arr || []).map(v => v.title + '|' + v.date).join('\n');
+    }
+
+    function save() {
+      localStorage.setItem(key, JSON.stringify(projects));
+    }
+
+    function collectReminders() {
+      const now = new Date();
+      const out = [];
+      projects.forEach(p => {
+        const d = days(now, p.endDate);
+        (p.reminderDays || [14, 7, 3, 1]).forEach(n => {
+          if (d === n)
+            out.push({
+              level: n <= 1 ? 'danger' : 'warn',
+              text: '项目「' + p.name + '」距截止还有 ' + n + ' 天'
+            });
+        });
+        (p.milestones || []).forEach(m => {
+          const md = days(now, m.date);
+          if (md >= 0 && md <= 3)
+            out.push({
+              level: md <= 1 ? 'danger' : 'warn',
+              text: '里程碑「' + m.title + '」还有 ' + md + ' 天'
+            });
+        });
+      });
+      return out;
+    }
+
+    function notify(list) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      list.slice(0, 2).forEach(item => new Notification('Project DDL 提醒', { body: item.text }));
+    }
+
+    function renderEditSelector() {
+      const sel = $('editSelect');
+      if (!projects.length) {
+        sel.innerHTML = '<option value="">暂无项目</option>';
+        return;
+      }
+      sel.innerHTML = projects
+        .map((p, i) => '<option value="' + i + '">' + p.name + '</option>')
+        .join('');
+    }
+
+    function renderEditArea(index) {
+      const box = $('editArea');
+      if (index === '' || projects[index] == null) {
+        box.style.display = 'none';
+        return;
+      }
+      const p = projects[index];
+      box.style.display = 'block';
+      box.innerHTML =
+        '<div class="grid-2"><div><label class="label">项目名称</label><input id="eName" value="' +
+        (p.name || '') +
+        '" /></div>' +
+        '<div><label class="label">提醒天数</label><input id="eReminder" value="' +
+        (p.reminderDays || []).join(',') +
+        '" /></div></div>' +
+        '<div class="grid-2" style="margin-top:10px"><div><label class="label">开始日期</label><input id="eStart" type="date" value="' +
+        (p.startDate || '') +
+        '" /></div>' +
+        '<div><label class="label">截止日期</label><input id="eEnd" type="date" value="' +
+        (p.endDate || '') +
+        '" /></div></div>' +
+        '<label class="label" style="margin-top:10px">里程碑</label><textarea id="eMilestones">' +
+        serializeMilestones(p.milestones || []) +
+        '</textarea>' +
+        '<div class="actions" style="margin-top:10px"><button id="saveEdit" class="thaw-button--primary">保存修改</button><button id="deleteEdit" class="btn-danger">删除项目</button></div>';
+
+      $('saveEdit').onclick = () => {
+        projects[index] = {
+          ...projects[index],
+          name: $('eName').value.trim(),
+          startDate: $('eStart').value,
+          endDate: $('eEnd').value,
+          milestones: parseMilestones($('eMilestones').value),
+          reminderDays: $('eReminder')
+            .value.split(',')
+            .map(v => Number(v.trim()))
+            .filter(Boolean)
+        };
+        render();
+      };
+
+      $('deleteEdit').onclick = () => {
+        if (!confirm('确认删除该项目？')) return;
+        projects.splice(index, 1);
+        box.style.display = 'none';
+        render();
+      };
+    }
+
+    function render() {
+      const now = new Date();
+      projects.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+      const list = $('projectList');
+
+      if (!projects.length) {
+        list.innerHTML = '<p class="meta" style="padding:8px 0">还没有项目，先新增或导入一个。</p>';
+      } else {
+        list.innerHTML = projects
+          .map((p, i) => {
+            const total = Math.max(days(p.startDate, p.endDate), 1);
+            const passed = clamp(days(p.startDate, now), 0, total);
+            const percent = Math.round((passed / total) * 100);
+            const left = Math.max(days(now, p.endDate), 0);
+            const ms = (p.milestones || [])
+              .map(m => '<span class="plain-tag">' + m.title + ' · ' + m.date + '</span>')
+              .join('');
+            return (
+              '<div class="thaw-table-cell-layout">' +
+              '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">' +
+              '<div class="conf-title" style="font-size:18px">' +
+              p.name +
+              '</div>' +
+              '<div class="countdown-display"><span class="countdown-value">D-' +
+              left +
+              '</span> <button class="btn-secondary" style="padding:4px 8px" data-edit="' +
+              i +
+              '">编辑</button></div>' +
+              '</div>' +
+              '<div class="meta" style="margin-top:6px">' +
+              p.startDate +
+              ' → ' +
+              p.endDate +
+              ' · 进度 ' +
+              percent +
+              '%</div>' +
+              '<div style="height:8px;border-radius:6px;background:#ebeef5;margin-top:8px;overflow:hidden"><div style="width:' +
+              percent +
+              '%;height:8px;background:#409eff"></div></div>' +
+              '<div class="tag-container">' +
+              ms +
+              '</div>' +
+              '</div>'
+            );
+          })
+          .join('');
+      }
+
+      list.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.onclick = () => {
+          $('editSelect').value = btn.getAttribute('data-edit');
+          renderEditArea($('editSelect').value);
+          window.scrollTo({ top: 380, behavior: 'smooth' });
+        };
+      });
+
+      const reminders = collectReminders();
+      $('reminderList').innerHTML = reminders.length
+        ? reminders
+            .map(v => '<div class="reminder-item ' + v.level + '">' + v.text + '</div>')
+            .join('')
+        : '<p class="meta">暂无近期提醒。</p>';
+
+      renderEditSelector();
+      notify(reminders);
+      save();
+    }
+
+    $('addBtn').onclick = () => {
+      const name = $('name').value.trim();
+      const startDate = $('startDate').value;
+      const endDate = $('endDate').value;
+      if (!name || !startDate || !endDate) return alert('请填写完整信息');
+      projects.push({
+        name,
+        startDate,
+        endDate,
+        milestones: parseMilestones($('milestones').value),
+        reminderDays: $('reminderDays')
+          .value.split(',')
+          .map(v => Number(v.trim()))
+          .filter(Boolean)
+      });
+      render();
+    };
+
+    $('loadEdit').onclick = () => renderEditArea($('editSelect').value);
+
+    $('importFile').onchange = async e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const arr = JSON.parse(await file.text());
+        if (!Array.isArray(arr)) throw new Error('JSON 必须是数组');
+        projects = projects.concat(arr);
+        render();
+      } catch (err) {
+        alert('导入失败: ' + err.message);
+      }
+    };
+
+    $('notifyBtn').onclick = async () => {
+      if (!('Notification' in window)) return alert('浏览器不支持通知');
+      const p = await Notification.requestPermission();
+      alert(p === 'granted' ? '提醒已开启' : '未授予通知权限');
+    };
+
+    render();
+    setInterval(render, 60000);
+  </script>
+</body>
+</html>`;
+}
+
+/**
+ * Creates homepage response with permissive CSP for inline app resources
+ * @returns {Response}
+ */
+function createHomePageResponse() {
+  const headers = new Headers({ 'Content-Type': 'text/html; charset=UTF-8' });
+  addSecurityHeaders(headers);
+  headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+  );
+  return new Response(getHomePageHtml(), { status: 200, headers });
+}
+
+/**
  * Parses Docker WWW-Authenticate header
  * @param {string} authenticateStr - The WWW-Authenticate header value
  * @returns {{realm: string, service: string}} Parsed authentication info
@@ -291,10 +729,9 @@ async function handleRequest(request, env, ctx) {
       return new Response('{}', { status: 200, headers });
     }
 
-    // Redirect root path or invalid platforms to GitHub repository
+    // Serve homepage
     if (url.pathname === '/' || url.pathname === '') {
-      const HOME_PAGE_URL = 'https://github.com/xixu-me/Xget';
-      return Response.redirect(HOME_PAGE_URL, 302);
+      return createHomePageResponse();
     }
 
     const validation = validateRequest(request, url, config);
@@ -333,8 +770,7 @@ async function handleRequest(request, env, ctx) {
       }) || effectivePath.split('/')[1];
 
     if (!platform || !config.PLATFORMS[platform]) {
-      const HOME_PAGE_URL = 'https://github.com/xixu-me/Xget';
-      return Response.redirect(HOME_PAGE_URL, 302);
+      return createErrorResponse('invalid platform', 400);
     }
 
     // Transform URL based on platform using unified logic
